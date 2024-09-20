@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+    <style>
+        /* Basic CSS for layout */
+        .task { margin-bottom: 10px; }
+        .pagination { margin-top: 20px; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border: 1px solid #ccc; }
+        .modal.show { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Task List</h1>
+    <input type="text" id="search" placeholder="Search tasks by title">
+    <div id="tasks"></div>
+    <div class="pagination">
+        <button onclick="prevPage()">Previous</button>
+        <span id="page-info"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+
+    <div id="task-modal" class="modal">
+        <div id="task-details"></div>
+        <button onclick="closeModal()">Close</button>
+    </div>
+
+    <script>
+        let tasks = [];
+        let currentPage = 1;
+        const tasksPerPage = 10;
+        let cachedTasks = {};
+
+        // Fetch tasks from the API
+        function fetchTasks() {
+            fetch('/api/v1/task')
+                .then(response => response.json())
+                .then(data => {
+                    tasks = data;
+                    renderTasks();
+                });
+        }
+
+        // Render the task list
+        function renderTasks() {
+            const taskContainer = document.getElementById('tasks');
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            taskContainer.innerHTML = '';
+            
+            const filteredTasks = tasks.filter(task => task.title.toLowerCase().includes(searchValue));
+            const start = (currentPage - 1) * tasksPerPage;
+            const end = start + tasksPerPage;
+            const paginatedTasks = filteredTasks.slice(start, end);
+
+            paginatedTasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.classList.add('task');
+                taskElement.innerHTML = `<strong>${task.title}</strong> - ${task.date} <button onclick="showTask(${task.id})">Details</button>`;
+                taskContainer.appendChild(taskElement);
+            });
+
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${Math.ceil(filteredTasks.length / tasksPerPage)}`;
+        }
+
+        // Show task details in a modal
+        function showTask(id) {
+            if (cachedTasks[id]) {
+                displayTask(cachedTasks[id]);
+            } else {
+                fetch(`/api/v1/task?id=${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        cachedTasks[id] = data;
+                        displayTask(data);
+                    });
+            }
+        }
+
+        function displayTask(task) {
+            const taskModal = document.getElementById('task-modal');
+            const taskDetails = document.getElementById('task-details');
+            taskDetails.innerHTML = `
+                <h2>${task.title}</h2>
+                <p>Author: ${task.author}</p>
+                <p>Status: ${task.status}</p>
+                <p>Description: ${task.description}</p>
+                <p>Due Date: ${task.date}</p>
+            `;
+            taskModal.classList.add('show');
+        }
+
+        // Pagination
+        function nextPage() {
+            currentPage++;
+            renderTasks();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTasks();
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('task-modal').classList.remove('show');
+        }
+
+        // Search
+        document.getElementById('search').addEventListener('input', renderTasks);
+
+        // Fetch tasks on page load
+        fetchTasks();
+    </script>
+</body>
+</html>
