@@ -43,7 +43,6 @@
         }
 
         td {
-            font-size: 14px;
             cursor: pointer;
         }
 
@@ -95,19 +94,15 @@
         .modal-content {
             background-color: white;
             margin: 10% auto;
-            /* padding: 20px; */
             border: 1px solid #888;
             width: 500px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             border-radius: 5px;
-            /* display: flex;
-            flex-direction: column; */
             justify-content: center;
             align-items: center;
         }
 
         .modal-header {
-            /* margin-bottom: 40px; */
             border-bottom: #000 solid 1px;
         }
 
@@ -119,32 +114,37 @@
         }
 
         .modal-body {
-            font-size: 14px;
-        }
-
-        .modal-line {
             display: flex;
             justify-content: center;
-            align-items: center;
+        }
+
+        .modal-label {
+            display: block;
+        }
+
+        .modal-input {
+            display: block;
         }
 
         .modal-body label {
             display: block;
+            padding: 5px;
             margin-top: 30px;
         }
 
-        .modal-body input {
-            width: 40%;
-            padding: 5px;
+        .modal-body span {
+            display: block;
+            padding: 4px;
+            padding-right: 40px;
             margin-top: 30px;
-            margin-left: 20px;
+            margin-left: 40px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
         .modal-footer {
             text-align: center;
-            margin: 100px;
+            margin: 80px;
         }
 
         .close-btn {
@@ -195,34 +195,23 @@
                 </div>
             </div>
             <div class="modal-body">
-                <div class="modal-line">
+                <div class="modal-label">
                     <label>Заголовок</label>
-                    <input type="text" id="taskTitle" readonly>
-                </div>
-
-                <div class="modal-line">
                     <label>Дата выполнения</label>
-                    <input type="text" id="taskDate" readonly>
-                </div>
-
-                <div class="modal-line">
                     <label>Автор</label>
-                    <input type="text" id="taskAuthor" readonly>
-                </div>
-
-                <div class="modal-line">
                     <label>Статус</label>
-                    <input type="text" id="taskStatus" readonly>
-                </div>
-
-                <div class="modal-line">
                     <label>Описание</label>
-                    <input type="text" id="taskDescription" readonly>
                 </div>
-
-                <div class="modal-footer">
-                    <button class="close-btn" onclick="closeModal()">Закрыть</button>
+                <div class="modal-input">
+                    <span id="taskTitle"></span>
+                    <span id="taskDate"></span>
+                    <span id="taskAuthor"></span>
+                    <span id="taskStatus"></span>
+                    <span id="taskDescription"></span>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn" onclick="closeModal()">Закрыть</button>
             </div>
         </div>
     </div>
@@ -279,11 +268,11 @@
                 const data = await response.json();
                 // Populate modal with task details
                 document.getElementById('taskId').textContent = data.id;
-                document.getElementById('taskTitle').value = data.title;
-                document.getElementById('taskDate').value = data.date;
-                document.getElementById('taskAuthor').value = data.author;
-                document.getElementById('taskStatus').value = data.status;
-                document.getElementById('taskDescription').value = data.description;
+                document.getElementById('taskTitle').textContent = data.title;
+                document.getElementById('taskDate').textContent = data.date;
+                document.getElementById('taskAuthor').textContent = data.author;
+                document.getElementById('taskStatus').textContent = data.status;
+                document.getElementById('taskDescription').textContent = data.description;
                 // Show modal
                 document.getElementById('taskModal').style.display = 'block';
             } catch (error) {
