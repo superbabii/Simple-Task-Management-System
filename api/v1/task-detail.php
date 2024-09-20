@@ -1,19 +1,44 @@
 <?php
+// Set content type to JSON
 header('Content-Type: application/json');
-require_once '../config/db.php';
 
-// Get task ID from the URL
-$id = $_GET['id'];
+// Open SQLite database
+$db = new SQLite3(__DIR__ . '/../../db/tasks.sqlite');
 
-// Fetch task details from the database
-$stmt = $pdo->prepare('SELECT * FROM tasks WHERE id = :id');
-$stmt->execute(['id' => $id]);
-$task = $stmt->fetch(PDO::FETCH_ASSOC);
+// Check if the task ID is provided in the URL
+if (isset($_GET['id'])) {
+    // Fetch task details by ID
+    $taskId = (int) $_GET['id'];
 
-// Check if the task was found
-if ($task) {
+    // Query to get task information by ID
+    $query = $db->prepare('SELECT id, title, date, author, status, description FROM tasks WHERE id = :id');
+    $query->bindValue(':id', $taskId, SQLITE3_INTEGER);
+
+    $result = $query->execute();
+    $task = $result->fetchArray(SQLITE3_ASSOC);
+
+    if (!$task) {
+        echo json_encode(['error' => 'Task not found']);
+        exit;
+    }
+
+    // Return task details as JSON
     echo json_encode($task);
-} else {
-    echo json_encode(['error' => 'Task not found']);
+    exit;
 }
-?>
+
+// Otherwise, fetch 1000 tasks from the database
+$query = $db->query('SELECT id, title, date FROM tasks ORDER BY id LIMIT 1000');
+
+// Prepare tasks array
+$tasks = [];
+while ($row = $query->fetchArray(SQLITE3_ASSOC)) {
+    $tasks[] = $row;
+}
+
+// Convert to JSON and cache the response
+$jsonResponse = json_encode($tasks);
+file_put_contents(__DIR__ . '/task_cache.json', $jsonResponse);
+
+// Return the JSON response
+echo $jsonResponse;

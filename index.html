@@ -47,6 +47,7 @@
 
         td {
             font-size: 14px;
+            cursor: pointer;
         }
 
         .pagination {
@@ -75,6 +76,90 @@
             color: #ccc;
             cursor: not-allowed;
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal.active {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-body {
+            font-size: 14px;
+        }
+
+        .modal-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .modal-body input {
+            width: 50%;
+            padding: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-footer {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .close-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            border-radius: 3px;
+            text-align: center;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .close-btn:hover {
+            background-color: #0062cc;
+        }
     </style>
 </head>
 
@@ -96,6 +181,43 @@
 
     <div class="pagination" id="pagination">
         <!-- Pagination buttons will be loaded here dynamically -->
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Информация о задаче №<span id="taskId"></span></div>
+            <div class="modal-body">
+                <div class="modal-line">
+                    <label>Заголовок</label>
+                    <input type="text" id="taskTitle" readonly>
+                </div>
+
+                <div class="modal-line">
+                    <label>Дата выполнения</label>
+                    <input type="text" id="taskDate" readonly>
+                </div>
+
+                <div class="modal-line">
+                    <label>Автор</label>
+                    <input type="text" id="taskAuthor" readonly>
+                </div>
+
+                <div class="modal-line">
+                    <label>Статус</label>
+                    <input type="text" id="taskStatus" readonly>
+                </div>
+
+                <div class="modal-line">
+                    <label>Описание</label>
+                    <input type="text" id="taskDescription" readonly>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="close-btn" onclick="closeModal()">Закрыть</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -128,11 +250,38 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${task.id}</td>
-                    <td>${task.title}</td>
+                    <td class="task-title" data-task-id="${task.id}">${task.title}</td>
                     <td>${task.date}</td>
                 `;
                 taskList.appendChild(row);
             });
+
+            // Add click event listeners to each task title
+            document.querySelectorAll('.task-title').forEach(item => {
+                item.addEventListener('click', function () {
+                    const taskId = this.getAttribute('data-task-id');
+                    fetchTaskDetails(taskId);
+                });
+            });
+        }
+
+        // Fetch task details for the modal
+        async function fetchTaskDetails(taskId) {
+            try {
+                const response = await fetch(`/api/v1/task.php?id=${taskId}`);
+                const data = await response.json();
+                // Populate modal with task details
+                document.getElementById('taskId').textContent = data.id;
+                document.getElementById('taskTitle').value = data.title;
+                document.getElementById('taskDate').value = data.date;
+                document.getElementById('taskAuthor').value = data.author;
+                document.getElementById('taskStatus').value = data.status;
+                document.getElementById('taskDescription').value = data.description;
+                // Show modal
+                document.getElementById('taskModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching task details:', error);
+            }
         }
 
         // Create pagination buttons
@@ -193,17 +342,22 @@
             pagination.appendChild(nextButton);
         }
 
-        // Search tasks by title
-        document.getElementById('search-bar').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            tasks = tasks.filter(task => task.title.toLowerCase().includes(query));
+        // Search bar functionality
+        document.getElementById('search-bar').addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            tasks = tasks.filter(task => task.title.toLowerCase().includes(searchTerm));
             currentPage = 1;
             displayTasks();
             createPagination();
         });
 
-        // Initialize
-        fetchTasks();
+        // Close modal
+        function closeModal() {
+            document.getElementById('taskModal').style.display = 'none';
+        }
+
+        // Fetch tasks when the page loads
+        window.onload = fetchTasks;
     </script>
 </body>
 
