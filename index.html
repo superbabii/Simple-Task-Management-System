@@ -8,19 +8,16 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
+            padding: 100px;
+            padding-left: 200px;
+            padding-right: 200px;
             background-color: #f4f4f4;
-        }
-
-        h1 {
-            text-align: center;
         }
 
         #search-bar {
             display: block;
             margin: 0 auto;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             padding: 10px;
             width: 300px;
             font-size: 16px;
@@ -29,14 +26,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             background-color: white;
         }
 
         th,
         td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 16px;
             text-align: center;
         }
 
@@ -98,21 +95,26 @@
         .modal-content {
             background-color: white;
             margin: 10% auto;
-            padding: 20px;
+            /* padding: 20px; */
             border: 1px solid #888;
             width: 500px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             border-radius: 5px;
-            display: flex;
-            flex-direction: column;
+            /* display: flex;
+            flex-direction: column; */
             justify-content: center;
             align-items: center;
         }
 
         .modal-header {
+            /* margin-bottom: 40px; */
+            border-bottom: #000 solid 1px;
+        }
+
+        .modal-header-text {
             font-size: 18px;
             font-weight: bold;
-            margin-bottom: 20px;
+            padding: 10px;
             text-align: center;
         }
 
@@ -128,27 +130,28 @@
 
         .modal-body label {
             display: block;
-            margin-bottom: 20px;
+            margin-top: 30px;
         }
 
         .modal-body input {
-            width: 50%;
+            width: 40%;
             padding: 5px;
-            margin-bottom: 20px;
+            margin-top: 30px;
+            margin-left: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
         .modal-footer {
             text-align: center;
-            margin-top: 10px;
+            margin: 100px;
         }
 
         .close-btn {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 30px;
             cursor: pointer;
             display: block;
             margin: 0 auto;
@@ -186,7 +189,11 @@
     <!-- Modal Structure -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">Информация о задаче №<span id="taskId"></span></div>
+            <div class="modal-header">
+                <div class="modal-header-text">
+                    Информация о задаче №<span id="taskId"></span>
+                </div>
+            </div>
             <div class="modal-body">
                 <div class="modal-line">
                     <label>Заголовок</label>
