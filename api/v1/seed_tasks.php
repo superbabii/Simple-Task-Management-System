@@ -15,7 +15,7 @@ $db->exec('DELETE FROM tasks');
 // Insert 1000 tasks
 $currentTime = new DateTime();
 for ($i = 1; $i <= 1000; $i++) {
-    $title = "Task $i";
+    $title = "Задача $i";
     $taskDate = clone $currentTime;
     $taskDate->modify("+$i hour");
     $taskDateFormatted = $taskDate->format('Y-m-d H:i:s');

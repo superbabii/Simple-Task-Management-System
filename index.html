@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,8 @@
             background-color: white;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
@@ -75,15 +77,16 @@
         }
     </style>
 </head>
+
 <body>
-    <input type="text" id="search-bar" placeholder="Search tasks..." />
+    <input type="text" id="search-bar" placeholder="Искать задачи..." />
 
     <table>
         <thead>
             <tr>
-                <th>Task Number</th>
-                <th>Title</th>
-                <th>Completion Date</th>
+                <th>Номер задачи</th>
+                <th>Заголовок</th>
+                <th>Дата завершения</th>
             </tr>
         </thead>
         <tbody id="task-list">
@@ -120,7 +123,7 @@
 
             // Filter and paginate tasks
             const filteredTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
-            
+
             filteredTasks.forEach(task => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -137,6 +140,7 @@
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
             const totalPages = Math.ceil(tasks.length / tasksPerPage);
+            const maxPagesToShow = 5;
 
             // Previous button
             const prevButton = document.createElement('button');
@@ -151,8 +155,17 @@
             });
             pagination.appendChild(prevButton);
 
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
+            // Calculate the start and end pages
+            let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+            let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+            // Adjust startPage if we are near the end
+            if (endPage - startPage < maxPagesToShow - 1) {
+                startPage = Math.max(1, endPage - maxPagesToShow + 1);
+            }
+
+            // Create page buttons
+            for (let i = startPage; i <= endPage; i++) {
                 const pageButton = document.createElement('button');
                 pageButton.textContent = i;
                 if (i === currentPage) {
@@ -193,4 +206,5 @@
         fetchTasks();
     </script>
 </body>
+
 </html>
