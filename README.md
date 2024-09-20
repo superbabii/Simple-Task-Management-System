@@ -1,5 +1,7 @@
 # Simple Task Management System
 
+<img src="test.png" alt="Simple Task Management System">
+
 This is a simple task management system built with PHP (no frameworks) and vanilla JavaScript. It allows users to list tasks, view task details, search tasks by title, and paginate through tasks.
 
 ## Features
