@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #search-bar {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .pagination {
+            text-align: center;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination button:hover {
+            background-color: #ddd;
+        }
+
+        .pagination button:disabled {
+            background-color: #f4f4f4;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Task List</h1>
+
+    <input type="text" id="search-bar" placeholder="Search tasks..." />
+
+    <table>
+        <thead>
+            <tr>
+                <th>Task Number</th>
+                <th>Title</th>
+                <th>Completion Date</th>
+            </tr>
+        </thead>
+        <tbody id="task-list">
+            <!-- Tasks will be loaded here dynamically -->
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination">
+        <!-- Pagination buttons will be loaded here dynamically -->
+    </div>
+
+    <script>
+        const tasksPerPage = 10;
+        let currentPage = 1;
+        let tasks = [];
+
+        // Fetch tasks from the API
+        async function fetchTasks() {
+            try {
+                const response = await fetch('/api/v1/task.php');
+                const data = await response.json();
+                tasks = data;
+                displayTasks();
+                createPagination();
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        }
+
+        // Display tasks in the table
+        function displayTasks() {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+
+            // Filter and paginate tasks
+            const filteredTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
+            
+            filteredTasks.forEach(task => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${task.id}</td>
+                    <td>${task.title}</td>
+                    <td>${task.date}</td>
+                `;
+                taskList.appendChild(row);
+            });
+        }
+
+        // Create pagination buttons
+        function createPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            const totalPages = Math.ceil(tasks.length / tasksPerPage);
+
+            // Previous button
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '<<';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayTasks();
+                    createPagination();
+                }
+            });
+            pagination.appendChild(prevButton);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                if (i === currentPage) {
+                    pageButton.classList.add('active');
+                }
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    displayTasks();
+                    createPagination();
+                });
+                pagination.appendChild(pageButton);
+            }
+
+            // Next button
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '>>';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayTasks();
+                    createPagination();
+                }
+            });
+            pagination.appendChild(nextButton);
+        }
+
+        // Search tasks by title
+        document.getElementById('search-bar').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            tasks = tasks.filter(task => task.title.toLowerCase().includes(query));
+            currentPage = 1;
+            displayTasks();
+            createPagination();
+        });
+
+        // Initialize
+        fetchTasks();
+    </script>
+</body>
+</html>
