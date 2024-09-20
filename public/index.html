@@ -6,24 +6,113 @@
     <title>Task List</title>
     <style>
         /* Basic CSS for layout */
-        .task { margin-bottom: 10px; }
-        .pagination { margin-top: 20px; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border: 1px solid #ccc; }
-        .modal.show { display: block; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: #fff; 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            width: 50%;
+        }
+        .modal.show { 
+            display: block; 
+        }
+        #search {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .task-detail {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .task-detail label {
+            margin-bottom: 5px;
+        }
+        .task-detail input {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <h1>Task List</h1>
     <input type="text" id="search" placeholder="Search tasks by title">
-    <div id="tasks"></div>
+    
+    <!-- Task Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Task ID</th>
+                <th>Title</th>
+                <th>Completion Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tasks">
+            <!-- Tasks will be dynamically generated here -->
+        </tbody>
+    </table>
+
+    <!-- Pagination controls -->
     <div class="pagination">
-        <button onclick="prevPage()">Previous</button>
+        <button onclick="prevPage()"><<</button>
         <span id="page-info"></span>
-        <button onclick="nextPage()">Next</button>
+        <button onclick="nextPage()">>></button>
     </div>
 
+    <!-- Modal for Task Details -->
     <div id="task-modal" class="modal">
-        <div id="task-details"></div>
+        <h2 id="modal-title">Task Details</h2>
+        <div class="task-detail">
+            <label for="task-title">Title</label>
+            <input type="text" id="task-title" readonly>
+        </div>
+        <div class="task-detail">
+            <label for="task-date">Completion Date</label>
+            <input type="text" id="task-date" readonly>
+        </div>
+        <div class="task-detail">
+            <label for="task-author">Author</label>
+            <input type="text" id="task-author" readonly>
+        </div>
+        <div class="task-detail">
+            <label for="task-status">Status</label>
+            <input type="text" id="task-status" readonly>
+        </div>
+        <div class="task-detail">
+            <label for="task-description">Description</label>
+            <input type="text" id="task-description" readonly>
+        </div>
         <button onclick="closeModal()">Close</button>
     </div>
 
@@ -55,10 +144,14 @@
             const paginatedTasks = filteredTasks.slice(start, end);
 
             paginatedTasks.forEach(task => {
-                const taskElement = document.createElement('div');
-                taskElement.classList.add('task');
-                taskElement.innerHTML = `<strong>${task.title}</strong> - ${task.date} <button onclick="showTask(${task.id})">Details</button>`;
-                taskContainer.appendChild(taskElement);
+                const taskRow = document.createElement('tr');
+                taskRow.innerHTML = `
+                    <td>${task.id}</td>
+                    <td>${task.title}</td>
+                    <td>${task.date}</td>
+                    <td><button onclick="showTask(${task.id})">Details</button></td>
+                `;
+                taskContainer.appendChild(taskRow);
             });
 
             document.getElementById('page-info').textContent = `Page ${currentPage} of ${Math.ceil(filteredTasks.length / tasksPerPage)}`;
@@ -79,15 +172,14 @@
         }
 
         function displayTask(task) {
+            document.getElementById('modal-title').textContent = `Task Information #${task.id}`;
+            document.getElementById('task-title').value = task.title;
+            document.getElementById('task-date').value = task.date;
+            document.getElementById('task-author').value = task.author;
+            document.getElementById('task-status').value = task.status;
+            document.getElementById('task-description').value = task.description;
+
             const taskModal = document.getElementById('task-modal');
-            const taskDetails = document.getElementById('task-details');
-            taskDetails.innerHTML = `
-                <h2>${task.title}</h2>
-                <p>Author: ${task.author}</p>
-                <p>Status: ${task.status}</p>
-                <p>Description: ${task.description}</p>
-                <p>Due Date: ${task.date}</p>
-            `;
             taskModal.classList.add('show');
         }
 
