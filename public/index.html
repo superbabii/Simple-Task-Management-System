@@ -124,16 +124,19 @@
 
         // Fetch tasks from the API
         function fetchTasks() {
-            fetch('/api/v1/task')
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const url = `/api/v1/task?page=${currentPage}&limit=${tasksPerPage}`;
+            
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    tasks = data;
-                    renderTasks();
+                    tasks = data.tasks;
+                    renderTasks(data.pagination.totalPages);
                 });
         }
 
         // Render the task list
-        function renderTasks() {
+        function renderTasks(totalPages) {
             const taskContainer = document.getElementById('tasks');
             const searchValue = document.getElementById('search').value.toLowerCase();
             taskContainer.innerHTML = '';
@@ -154,7 +157,7 @@
                 taskContainer.appendChild(taskRow);
             });
 
-            document.getElementById('page-info').textContent = `Page ${currentPage} of ${Math.ceil(filteredTasks.length / tasksPerPage)}`;
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
         }
 
         // Show task details in a modal
