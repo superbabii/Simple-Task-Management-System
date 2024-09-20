@@ -21,7 +21,7 @@ This is a simple task management system built with PHP (no frameworks) and vanil
 ### 1. Download/Clone the Project
 
 ```bash
-git clone https://github.com/your-username/simple-task-management.git
+git clone https://github.com/superbabii/simple-task-management.git
 ```
 
 Or download the ZIP from this repository and extract it.
